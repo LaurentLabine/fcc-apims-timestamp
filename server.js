@@ -6,6 +6,7 @@ require('dotenv').config();
 var express = require('express');
 var app = express();
 
+
 Date.prototype.getUnixTime = function() { return this.getTime()/1000|0 };
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
@@ -28,16 +29,39 @@ app.get("/api/hello", function (req, res) {
 });
 
 app.get("/api/timestamp/:date?", function(req, res) {
-  var date = new Date(req.params.date);// = new Date(req.params.date)//try to convert
-  var utcMilliSeconds;
 
-  if(!isNaN(req.params.date)){//if is a number, treat as epoch
-    utcMilliSeconds = req.params.date;
+const param = req.params.date;
+let utcMilliSeconds;
+let date = new Date(param);
+let response = {};
+console.log(typeof(param))
+
+if(!param){
+  console.log("undefined")
+
+  var currentdate = new Date(); 
+var datetime = currentdate.getFullYear() + "/"
+                + (currentdate.getMonth()+1)  + "/"
+                + currentdate.getDate() + " "
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+                console.log(datetime)
+
+  date = new Date(datetime)
+  utcMilliSeconds = date.getUnixTime()*1000
+
+} else if(!isNaN(param)){//If number
+  console.log("Number")
     date = new Date(0)
-    date.setUTCMilliseconds(utcMilliSeconds)
-  }else if(!isNaN(date.getTime())){
-    utcMilliSeconds = date.getUnixTime()
-  }else return "Not a valid format"
+    date.setUTCMilliseconds(param)
+    utcMilliSeconds = date.getUnixTime()*1000
+    console.log(date)
+} else if(!isNaN(date.getTime())){//If valid date
+    date = new Date(param);
+    utcMilliSeconds = date.getUnixTime()*1000
+}else return (res.json({ error : "Invalid Date"})); //Invalid Format
+
   return (res.json(
       { unix : utcMilliSeconds, 
         utc: date.toUTCString()
