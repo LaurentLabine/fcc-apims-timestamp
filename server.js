@@ -11,6 +11,10 @@ Date.prototype.getUnixTime = function() { return this.getTime()/1000|0 };
 if(!Date.now) Date.now = function() { return new Date(); }
 Date.time = function() { return Date.now().getUnixTime(); }
 
+function isValidDate(d) {
+  return d instanceof Date && !isNaN(d);
+}
+
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC 
 var cors = require('cors');
@@ -31,12 +35,20 @@ app.get("/api/hello", function (req, res) {
 });
 
 app.get("/api/timestamp/:date?", function(req, res) {
-  var date = new Date(req.params)
-  if(date === "Invalid Date") return console.error("Invalid Date");
-    return (res.json(
-    { unix : new Date(req.params.date).getUnixTime(), 
-      utc: new Date(req.params.date).toUTCString()
-    }))
+  var date = new Date(req.params.date);// = new Date(req.params.date)//try to convert
+  var utcMilliSeconds;
+
+  if(!isNaN(req.params.date)){//if is a number, treat as epoch
+    utcMilliSeconds = req.params.date;
+    date = new Date(0)
+    date.setUTCMilliseconds(utcMilliSeconds)
+  }else if(!isNaN(date.getTime())){
+    utcMilliSeconds = date.getUnixTime()
+  }else return "Not a valid format"
+  return (res.json(
+      { unix : utcMilliSeconds, 
+        utc: date.toUTCString()
+  }))
 });
 
 
