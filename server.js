@@ -6,14 +6,7 @@ require('dotenv').config();
 var express = require('express');
 var app = express();
 
-
 Date.prototype.getUnixTime = function() { return this.getTime()/1000|0 };
-if(!Date.now) Date.now = function() { return new Date(); }
-Date.time = function() { return Date.now().getUnixTime(); }
-
-function isValidDate(d) {
-  return d instanceof Date && !isNaN(d);
-}
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC 
@@ -50,8 +43,6 @@ app.get("/api/timestamp/:date?", function(req, res) {
         utc: date.toUTCString()
   }))
 });
-
-
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
